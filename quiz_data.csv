@@ -1,9 +1,9 @@
 type,korean_word,image_path,correct_vowel
-match,비빔밥,assets/bibimbap.jpg,
-match,불고기,assets/bulgogi.jpg,
-match,한복,assets/hanbok.jpg,
-match,김치,assets/kimchi.jpg,
-match,소주,assets/soju.jpg,
+match,비빔밥,bibimbap.jpg,
+match,불고기,bulgogi.jpg,
+match,한복,hanbok.jpg,
+match,김치,kimchi.jpg,
+match,소주,soju.jpg,
 drop,가,N/A,ㅏ
 drop,고,N/A,ㅗ
 drop,바,N/A,ㅏ
@@ -12,4 +12,5 @@ drop,치,N/A,ㅣ
 drop,소,N/A,ㅗ
 drop,너,N/A,ㅓ
 drop,무,N/A,ㅜ
+
 

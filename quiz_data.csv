@@ -1,0 +1,6 @@
+type,korean_word,image_path,correct_vowel
+match,사과,assets/apple.png,
+match,바나나,assets/banana.png,
+drop,가,assets/vowel_a.png,ㅏ
+drop,고,assets/vowel_o.png,ㅗ
+drop,구,assets/vowel_u.png,ㅜ

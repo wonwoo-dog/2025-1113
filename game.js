@@ -216,13 +216,21 @@ function mousePressed() {
                 }
             }
         }
+    // *** 請替換 game.js 中大約第 210 行開始的這一段 ***
+
     } else if (gameState === 'result') {
         // 點擊返回選單按鈕
+        // **注意：這裡必須與 drawResult() 中的按鈕定義完全一致！**
         let menuBtn = { x: width / 2, y: height * 0.7, w: 150, h: 50, text: "返回選單" };
+        
+        // 使用 checkClick 判斷點擊是否在按鈕範圍內
         if (checkClick(menuBtn)) {
+             console.log("返回選單按鈕被點擊！準備返回菜單。"); 
              gameState = 'menu';
-             // *** 關鍵修正：從結果畫面返回菜單必須重新啟動 draw 循環！ ***
-             loop(); // <--- 修正：使用 loop()
+             // 關鍵：重新啟動 draw 循環，讓菜單可以被繪製出來
+             loop(); 
+        }
+    }
         }
     }
 }

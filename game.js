@@ -617,21 +617,4 @@ class ParticleSystem {
     }
 }
 
-// 輔助函式：打亂陣列 (P5.js 內建)
-function shuffle(array) {
-  let currentIndex = array.length, randomIndex;
 
-  // While there remain elements to shuffle.
-  while (currentIndex != 0) {
-
-    // Pick a remaining element.
-    randomIndex = floor(random() * currentIndex);
-    currentIndex--;
-
-    // And swap it with the current element.
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex], array[currentIndex]];
-  }
-
-  return array;
-}

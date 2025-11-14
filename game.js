@@ -5,7 +5,7 @@ let gameState = 'menu'; // 'menu', 'game1', 'game2', 'result'
 let score = 0;       
 let game1Attempts = 0; // 遊戲 1 嘗試次數
 let game1Matches = 0;  // 遊戲 1 成功配對數
-let totalPairs = 5;    // 遊戲 1 總配對數
+let totalPairs = 5;    // 遊戲 1 總配對數 (5組卡牌)
 
 // --- 圖片變數 (用於遊戲 1) ---
 let cardImages = {};
@@ -18,13 +18,13 @@ const cardConfig = { size: 80, spacing: 20, cols: 5, rows: 2, startX: 100, start
 // --- 遊戲 2 變數 ---
 let fallingLetters = [];
 let buttonData; 
-let game2MaxLetters = 10; // 遊戲 2 最大掉落數量
+let game2MaxLetters = 10; // 遊戲 2 最大掉落數量 (10個)
 let game2LettersSpawned = 0; // 遊戲 2 已掉落數量
 
 // 特效與系統變數
 let particleSystem;
 let dataLoaded = false;
-let font; // 為了顯示韓文，我們可以使用一個佔位符字體
+let font; 
 
 // === 1. 檔案載入與初始化 ===
 
@@ -46,7 +46,6 @@ function preload() {
                 
                 // 嘗試載入所有獨特的圖片
                 for (let path of imagePaths) {
-                    // 請確保圖片在同一個目錄下，且名稱正確
                     cardImages[path] = loadImage(path, 
                         () => console.log(`圖片 ${path} 載入成功`),
                         (err) => console.error(`圖片 ${path} 載入失敗！請檢查路徑。`, err)
@@ -66,11 +65,9 @@ function setup() {
     noStroke();
     textAlign(CENTER, CENTER);
     
-    // if (font) { textFont(font); } 
-    
     if (dataLoaded) {
         parseGameData(gameTable);
-        initGame1Cards(); // 預先生成卡牌物件
+        initGame1Cards(); 
     } else {
         // 載入失敗時提供少量測試數據，防止遊戲完全崩潰
         quizData = [
@@ -84,7 +81,7 @@ function setup() {
     particleSystem = new ParticleSystem();
     initializeButtons(); 
     
-    noLoop(); // 遊戲從菜單開始，靜止等待點擊
+    noLoop(); // 畫布靜止，等待點擊開始遊戲
 }
 
 // 初始化所有固定按鈕的位置 (純繪圖按鈕)
@@ -98,7 +95,7 @@ function initializeButtons() {
         restart: { x: 700, y: 30, w: 120, h: 30, text: "重新開始" }, 
         backToMenu: { x: 550, y: 30, w: 120, h: 30, text: "返回選單" },
         
-        // 遊戲 2 元音輸入按鈕 (左上角座標 + 寬高，方便 CORNER 繪圖)
+        // 遊戲 2 元音輸入按鈕 
         vowelInputs: [
             { char: 'ㅏ', label: 'a', x: 200, y: 520, w: 60, h: 40, correctVowel: 'ㅏ' },
             { char: 'ㅓ', label: 'eo', x: 270, y: 520, w: 60, h: 40, correctVowel: 'ㅓ' },
@@ -125,10 +122,10 @@ function parseGameData(table) {
 
 function initGame1Cards() {
     game1Cards = [];
-    // 過濾出配對題，並只取前 totalPairs 組
+    // 過濾出配對題，並只取前 totalPairs 組 (5組)
     const matchQuestions = quizData.filter(d => d.type === 'match').slice(0, totalPairs);
 
-    // 1. 創建卡牌內容 (N組韓文 + N組圖片)
+    // 1. 創建卡牌內容 (5組韓文 + 5組圖片)
     let cardContent = [];
     for (let i = 0; i < matchQuestions.length; i++) {
         let q = matchQuestions[i];
@@ -151,18 +148,17 @@ function resetGame1() {
     game1Matches = 0;
     flippedCards = [];
     
-    // 將卡牌內容打亂
+    // 將卡牌內容打亂並重置狀態
     let contentCopy = [];
     game1Cards.forEach(c => contentCopy.push(c.data));
     contentCopy = shuffle(contentCopy); 
     
-    // 重新賦值給卡牌物件，並重置狀態
     for (let i = 0; i < game1Cards.length; i++) {
         game1Cards[i].data = contentCopy[i];
         game1Cards[i].isFlipped = false;
         game1Cards[i].isMatched = false;
     }
-    loop(); // 確保進入遊戲後 draw 迴圈啟動
+    loop(); // 啟動 draw 循環
 }
 
 // === 2. 主要繪圖迴圈 ===
@@ -190,7 +186,7 @@ function mousePressed() {
         // 點擊主選單按鈕
         if (checkClick(buttonData.menuBtn1)) {
             gameState = 'game1';
-            resetGame1(); // 初始化遊戲 1
+            resetGame1(); 
         } else if (checkClick(buttonData.menuBtn2)) {
             gameState = 'game2';
             resetCurrentGame();
@@ -211,7 +207,6 @@ function mousePressed() {
         } else if (gameState === 'game2') {
             // 遊戲 2 元音輸入按鈕
             for (let btn of buttonData.vowelInputs) {
-                // checkClick 參數調整以適應 CORNER 模式繪製的按鈕
                 let rect = {x: btn.x + btn.w/2, y: btn.y + btn.h/2, w: btn.w, h: btn.h};
                 if (checkClick(btn, rect)) {
                     handleVowelInput(btn.char);
@@ -276,7 +271,6 @@ function handleVowelInput(vowel) {
     if (fallingLetters.length > 0) {
         let currentLetter = fallingLetters[0]; 
         
-        // 尋找對應的按鈕資料來取得正確的元音值
         const buttonInfo = buttonData.vowelInputs.find(b => b.char === vowel);
         
         if (currentLetter.data.correctVowel === buttonInfo.correctVowel) {
@@ -292,7 +286,7 @@ function handleVowelInput(vowel) {
 
 // 遊戲 2 生成字母邏輯
 function spawnNextFallingLetter() {
-    // 檢查是否已達到最大掉落數量
+    // 檢查是否已達到最大掉落數量 (10個)
     if (game2LettersSpawned >= game2MaxLetters) {
         return;
     }
@@ -305,9 +299,8 @@ function spawnNextFallingLetter() {
     }
 }
 
-// 輔助函式：檢查點擊是否在按鈕內 (所有按鈕都使用 CENTER 模式繪製/檢查)
+// 輔助函式：檢查點擊是否在按鈕內 
 function checkClick(btn, rect=btn) {
-    // rect.x, rect.y 是中心點
     if (mouseX > rect.x - rect.w / 2 && mouseX < rect.x + rect.w / 2 &&
         mouseY > rect.y - rect.h / 2 && mouseY < rect.y + rect.h / 2) {
         return true;
@@ -324,7 +317,7 @@ function resetCurrentGame() {
         fallingLetters = [];
         game2LettersSpawned = 0; 
         spawnNextFallingLetter();
-        loop(); // 確保 draw 迴圈啟動
+        loop(); // 啟動 draw 循環
     }
 }
 
@@ -424,12 +417,13 @@ function drawResult() {
     let resultText = "";
     let finalScoreText = "";
     
-    // 判斷是從哪個遊戲結束的，通常用 game1Matches 來判斷是否玩過 game 1
+    // 根據遊戲 1 的完成狀態來判斷顯示哪個遊戲的結果
     if (game1Matches === totalPairs) { 
         let rate = (game1Attempts === 0) ? 'N/A' : ((game1Matches / game1Attempts) * 100).toFixed(1) + '%';
         resultText = "遊戲 1 結束！";
         finalScoreText = `成功配對: ${game1Matches} / ${totalPairs}\n準確率: ${rate}`;
     } else { 
+        // 遊戲 2 或中途退出
         let maxPossibleScore = game2MaxLetters * 10;
         let rate = (maxPossibleScore === 0) ? 'N/A' : ((score / maxPossibleScore) * 100).toFixed(1) + '%';
         resultText = "遊戲 2 結束！";
@@ -466,7 +460,7 @@ function drawControlButtons() {
     drawButton(buttonData.backToMenu, 8);
 }
 
-// 繪製遊戲 2 的元音輸入按鈕 (使用 CORNER 模式繪製，但點擊仍然用 CENTER 檢查)
+// 繪製遊戲 2 的元音輸入按鈕 
 function drawVowelButtons() {
     for (let btn of buttonData.vowelInputs) {
         let centerPoint = {x: btn.x + btn.w/2, y: btn.y + btn.h/2, w: btn.w, h: btn.h};
@@ -492,7 +486,7 @@ function drawVowelButtons() {
 class Card {
     constructor(x, y, size, data) {
         this.x = x; this.y = y; this.size = size;
-        this.data = data; // { type: 'text'/'image', value: string, pairID: number }
+        this.data = data; 
         this.isFlipped = false;
         this.isMatched = false;
     }
@@ -511,10 +505,10 @@ class Card {
         if (this.isFlipped || this.isMatched) {
             // 顯示正面內容
             if (this.data.type === 'image' && cardImages[this.data.value] && cardImages[this.data.value].width > 1) {
-                // 檢查圖片是否已載入
+                // 顯示圖片
                 image(cardImages[this.data.value], this.x, this.y, this.size, this.size);
             } else {
-                // 如果是文字或圖片未載入，顯示文字
+                // 顯示文字
                 fill(0); textSize(20); textAlign(CENTER, CENTER);
                 text(this.data.value, this.x + this.size / 2, this.y + this.size / 2);
             }
@@ -623,7 +617,7 @@ class ParticleSystem {
     }
 }
 
-// 輔助函式：打亂陣列
+// 輔助函式：打亂陣列 (P5.js 內建)
 function shuffle(array) {
   let currentIndex = array.length, randomIndex;
 

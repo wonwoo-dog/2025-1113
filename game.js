@@ -39,6 +39,7 @@ function preload() {
                 let imagePaths = [];
                 for (let row of rows) {
                     let path = row.getString('image_path');
+                    // 檢查是否為 match 類型且圖片路徑有效且不重複
                     if (row.getString('type') === 'match' && path && path !== 'N/A' && !imagePaths.includes(path)) {
                         imagePaths.push(path);
                     }
@@ -71,7 +72,8 @@ function setup() {
     } else {
         // 載入失敗時提供少量測試數據，防止遊戲完全崩潰
         quizData = [
-            { type: 'match', korean: '사과', imgPath: 'N/A', correctVowel: '' },
+            // 模擬您最後的設定
+            { type: 'match', korean: '비빔밥', imgPath: 'bibimbap.jpg', correctVowel: '' },
             { type: 'drop', korean: '가', imgPath: 'N/A', correctVowel: 'ㅏ' }
         ];
         console.warn("使用預設測試數據啟動遊戲，CSV 載入失敗的警告訊息仍在控制台！");
@@ -219,7 +221,8 @@ function mousePressed() {
         let menuBtn = { x: width / 2, y: height * 0.7, w: 150, h: 50, text: "返回選單" };
         if (checkClick(menuBtn)) {
              gameState = 'menu';
-             noLoop();
+             // *** 關鍵修正：從結果畫面返回菜單必須重新啟動 draw 循環！ ***
+             loop(); // <--- 修正：使用 loop()
         }
     }
 }
@@ -249,7 +252,7 @@ function handleGame1Click() {
                     particleSystem.createParticles('praise', width / 2, height / 2, 50);
 
                     if (game1Matches === totalPairs) {
-                        setTimeout(() => { gameState = 'result'; noLoop(); }, 1500); // 遊戲結束
+                        setTimeout(() => { gameState = 'result'; noLoop(); }, 1500); // 遊戲結束並停止循環
                     }
                 } else {
                     // 配對失敗，延遲 1 秒後翻回去
@@ -504,8 +507,8 @@ class Card {
 
         if (this.isFlipped || this.isMatched) {
             // 顯示正面內容
+            // 檢查圖片是否已載入且有數據
             if (this.data.type === 'image' && cardImages[this.data.value] && cardImages[this.data.value].width > 1) {
-                // 顯示圖片
                 image(cardImages[this.data.value], this.x, this.y, this.size, this.size);
             } else {
                 // 顯示文字
@@ -617,4 +620,5 @@ class ParticleSystem {
     }
 }
 
-
+// 輔助函式：打亂陣列 (使用 P5.js 內建的 shuffle)
+// 註: 我們移除手動定義的 shuffle，避免與 P5.js 內建功能衝突。
